@@ -16,6 +16,7 @@ const main = async () => {
     // const post = orm.em.create(Post, {title: 'my first post'});
     // await orm.em.persistAndFlush(post);
 
+    // Finds all posts in our database and returns a promise (await and we console log this)
     // const posts = await orm.em.find(Post, {});
     // console.log(posts);
     
@@ -36,4 +37,6 @@ const main = async () => {
 };
 
 
-main();
+main().catch((err) => {
+    console.error(err);
+});
