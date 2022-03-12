@@ -1,0 +1,29 @@
+How Sessions Work
+
+- When we do 'req.session.userId = user.id;' - we are storing data into session
+
+it will take {userId: 1} -> And send this to redis 
+
+Redis is a Key Lookup store 
+
+1
+key is the value qerouhqrouqern and will return us this data {userId:1}
+sess:qerouhqrouqern -> {userId: 1}
+
+2
+express-session will set a cookie on my browser and look like e.g. qerq8urq08qjjenqw (a signed version of the key for redis) 
+
+3
+We take this signed key on the users browser (when the user makes a request) 
+qerq8urq08qjjenqw -> sent to the server 
+
+Decrypt our cookie and get the key for redis and make a request to redis
+4
+qerq8urq08qjjenqw -> sess:qerouhqrouqern
+
+5
+Make a request to redis 
+sess:qerouhqrouqern -> {userId:1}
+
+6.
+stores req.session = {userId:1}
