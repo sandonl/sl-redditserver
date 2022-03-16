@@ -10,20 +10,29 @@ import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
 import session from "express-session";
 import connectRedis from "connect-redis";
-import { MyContext } from "./types";
+import cors from "cors";
 
 const { createClient } = require("redis");
 
 const main = async () => {
+  // Create MikroORM
   const orm = await MikroORM.init(microConfig);
   await orm.getMigrator().up();
 
+  // Initiate an App
   const app = express();
 
+  // Create Redis Store and Client
   const RedisStore = connectRedis(session);
   const redisClient = createClient({ legacyMode: true });
   redisClient.connect().catch(console.error);
 
+  app.use(
+    cors({
+      origin: "http://localhost:3000",
+      credentials: true,
+    })
+  );
   app.use(
     session({
       name: "qid",
@@ -45,10 +54,13 @@ const main = async () => {
       resolvers: [HelloResolver, PostResolver, UserResolver],
       validate: false,
     }),
-    context: ({ req, res }): MyContext => ({ em: orm.em, req, res }),
+    context: ({ req, res }) => ({ em: orm.em, req, res }),
   });
 
-  apolloServer.applyMiddleware({ app });
+  apolloServer.applyMiddleware({
+    app,
+    cors: false,
+  });
 
   app.listen(4000, () => {
     console.log("server started on localhost:4000");

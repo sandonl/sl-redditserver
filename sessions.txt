@@ -3,11 +3,10 @@ How Sessions Work
 - When we do 'req.session.userId = user.id;' - we are storing data into session
 
 it will take {userId: 1} -> And send this to redis 
-
 Redis is a Key Lookup store 
 
 1
-key is the value qerouhqrouqern and will return us this data {userId:1}
+key is the value e.g. qerouhqrouqern and will return us this data {userId:1}
 sess:qerouhqrouqern -> {userId: 1}
 
 2
