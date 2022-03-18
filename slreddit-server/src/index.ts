@@ -27,6 +27,7 @@ const main = async () => {
   const redisClient = createClient({ legacyMode: true });
   redisClient.connect().catch(console.error);
 
+  // Applies middleware to all routes
   app.use(
     cors({
       origin: "http://localhost:3000",
