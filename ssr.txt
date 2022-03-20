@@ -1,0 +1,8 @@
+me -> browse http://localhost:3000 
+-> next.js server 
+-> request graphql server localhost:4000 
+-> building the HTML 
+-> sending back to your browser. 
+
+Next.js will toggle between server side rendering and client side rendering 
+depending on whether or not we have loaded the page yet. 
