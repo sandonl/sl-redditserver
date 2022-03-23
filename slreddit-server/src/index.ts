@@ -17,6 +17,7 @@ const { createClient } = require("redis");
 const main = async () => {
   // Create MikroORM
   const orm = await MikroORM.init(microConfig);
+  // await orm.em.nativeDelete(User, {});
   await orm.getMigrator().up();
 
   // Initiate an App
