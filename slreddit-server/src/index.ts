@@ -12,7 +12,7 @@ import session from "express-session";
 import connectRedis from "connect-redis";
 import cors from "cors";
 
-const { createClient } = require("redis");
+import Redis from "ioredis";
 
 const main = async () => {
   // Create MikroORM
@@ -25,8 +25,9 @@ const main = async () => {
 
   // Create Redis Store and Client
   const RedisStore = connectRedis(session);
-  const redisClient = createClient({ legacyMode: true });
-  redisClient.connect().catch(console.error);
+  const redis = new Redis();
+  // const redisClient = createClient({ legacyMode: true });
+  redis.connect().catch(console.error);
 
   // Applies middleware to all routes
   app.use(
@@ -38,7 +39,7 @@ const main = async () => {
   app.use(
     session({
       name: COOKIE_NAME,
-      store: new RedisStore({ client: redisClient, disableTouch: true }),
+      store: new RedisStore({ client: redis, disableTouch: true }),
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // ms, seconds, minutes, hours, days, years 10 years
         httpOnly: true,
@@ -56,7 +57,7 @@ const main = async () => {
       resolvers: [HelloResolver, PostResolver, UserResolver],
       validate: false,
     }),
-    context: ({ req, res }) => ({ em: orm.em, req, res }),
+    context: ({ req, res }) => ({ em: orm.em, req, res, redis }),
   });
 
   apolloServer.applyMiddleware({
