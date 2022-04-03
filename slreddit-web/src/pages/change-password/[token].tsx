@@ -1,27 +1,39 @@
-import { Box, Button } from "@chakra-ui/react";
-import { Formik, Form } from "formik";
+import { Box, Button, Flex, Link } from "@chakra-ui/react";
+import { Form, Formik } from "formik";
 import { NextPage } from "next";
-import router from "next/router";
+import { withUrqlClient } from "next-urql";
+import NextLink from "next/link";
+import { useRouter } from "next/router";
+import { useState } from "react";
 import { InputField } from "../../components/InputField";
 import { Wrapper } from "../../components/Wrapper";
 import { useChangePasswordMutation } from "../../generated/graphql";
+import { createUrqlClient } from "../../utils/createUrqlClient";
 import { toErrorMap } from "../../utils/toErrorMap";
-import login from "../login";
 
 const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
-  const [,] = useChangePasswordMutation();
+  const router = useRouter();
+  const [, changePassword] = useChangePasswordMutation();
+  const [tokenError, setTokenError] = useState("");
   return (
     <Wrapper variant="small">
       <Formik
         initialValues={{ newPassword: "" }}
         onSubmit={async (values, { setErrors }) => {
-          // const response = await login(values); // Need to return a promise to stop spinning icon
-          // if (response.data?.login.errors) {
-          //   setErrors(toErrorMap(response.data.login.errors));
-          // } else if (response.data?.login.user) {
-          //   // The user worked, so we want to navigate to home page.
-          //   router.push("/");
-          // }
+          const response = await changePassword({
+            newPassword: values.newPassword,
+            token,
+          });
+          if (response.data?.changePassword.errors) {
+            const errorMap = toErrorMap(response.data.changePassword.errors);
+            if ("token" in errorMap) {
+              setTokenError(errorMap.token);
+            }
+            setErrors(errorMap);
+          } else if (response.data?.changePassword.user) {
+            // The user worked, so we want to navigate to home page.
+            router.push("/");
+          }
         }}
       >
         {({ isSubmitting }) => (
@@ -32,6 +44,16 @@ const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
               label="New Password"
               type="password"
             />
+            {tokenError ? (
+              <Flex>
+                <Box mr={2} color="red">
+                  {tokenError}
+                </Box>
+                <NextLink href="/forgot-password">
+                  <Link>Reset Password Again. </Link>
+                </NextLink>
+              </Flex>
+            ) : null}
             <Button
               mt={5}
               type="submit"
@@ -54,4 +76,4 @@ ChangePassword.getInitialProps = ({ query }) => {
   };
 };
 
-export default ChangePassword;
+export default withUrqlClient(createUrqlClient)(ChangePassword);
