@@ -147,6 +147,7 @@ export class UserResolver {
     const hashedPassword = await argon2.hash(options.password);
     let user;
     try {
+      // User.create({}).save() -> equivalent version
       const result = await dataSource
         .createQueryBuilder()
         .insert()
@@ -158,8 +159,7 @@ export class UserResolver {
         })
         .returning("*")
         .execute();
-      console.log("result", result);
-      user = result.raw;
+      user = result.raw[0];
     } catch (err) {
       console.log("message :", err.message);
       if (err.code === "23505") {
