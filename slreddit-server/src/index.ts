@@ -1,24 +1,25 @@
-import { MikroORM } from "@mikro-orm/core";
-import { COOKIE_NAME, __prod__ } from "./constants";
-import "reflect-metadata";
-import microConfig from "./mikro-orm.config";
-import express from "express";
 import { ApolloServer } from "apollo-server-express";
+import connectRedis from "connect-redis";
+import cors from "cors";
+import express from "express";
+import session from "express-session";
+import Redis from "ioredis";
+import "reflect-metadata";
 import { buildSchema } from "type-graphql";
+import { COOKIE_NAME } from "./constants";
+import dataSource from "./db_config";
 import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
-import session from "express-session";
-import connectRedis from "connect-redis";
-import cors from "cors";
-
-import Redis from "ioredis";
 
 const main = async () => {
+  // TypeORM Datasource Initialise connection to the DB
+  dataSource.initialize();
+
   // Create MikroORM
-  const orm = await MikroORM.init(microConfig);
+  // const orm = await MikroORM.init(microConfig);
   // await orm.em.nativeDelete(User, {});
-  await orm.getMigrator().up();
+  // await orm.getMigrator().up();
 
   // Initiate an App
   const app = express();
@@ -27,7 +28,7 @@ const main = async () => {
   const RedisStore = connectRedis(session);
   const redis = new Redis();
   // const redisClient = createClient({ legacyMode: true });
-  redis.connect().catch(console.error);
+  // redis.connect().catch(console.error);
 
   // Applies middleware to all routes
   app.use(
@@ -57,7 +58,7 @@ const main = async () => {
       resolvers: [HelloResolver, PostResolver, UserResolver],
       validate: false,
     }),
-    context: ({ req, res }) => ({ em: orm.em, req, res, redis }),
+    context: ({ req, res }) => ({ req, res, redis }),
   });
 
   apolloServer.applyMiddleware({
