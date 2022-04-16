@@ -8,6 +8,7 @@ import "reflect-metadata";
 import { buildSchema } from "type-graphql";
 import { COOKIE_NAME } from "./constants";
 import dataSource from "./db_config";
+// import { Post } from "./entities/Post";
 import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
