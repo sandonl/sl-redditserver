@@ -44,7 +44,6 @@ export class PostResolver {
     @Arg("input") input: PostInput,
     @Ctx() { req }: MyContext
   ): Promise<Post> {
-    // 2 Sql Queries
     return Post.create({
       ...input,
       creatorId: req.session.userId,
