@@ -5,12 +5,14 @@ import {
   Ctx,
   Field,
   InputType,
+  Int,
   Mutation,
   Query,
   Resolver,
   UseMiddleware,
 } from "type-graphql";
 import { Post } from "../entities/Post";
+import dataSource from "../db_config";
 
 @InputType()
 class PostInput {
@@ -25,9 +27,21 @@ export class PostResolver {
   // Finds all posts
   // Sets GraphQL Type
   @Query(() => [Post])
-  async posts(): // Sets TypeScript Type
-  Promise<Post[]> {
-    return Post.find();
+  async posts(
+    @Arg("limit", () => Int) limit: number,
+    @Arg("cursor", () => String, { nullable: true }) cursor: string | null
+  ): Promise<Post[]> {
+    const realLimit = Math.min(50, limit);
+    // Add Pagination
+    const qb = await dataSource
+      .getRepository(Post)
+      .createQueryBuilder("p")
+      .orderBy('"createdAt"', "DESC")
+      .take(realLimit);
+    if (cursor) {
+      qb.where('"createdAt" < :cursor', { cursor: new Date(parseInt(cursor)) });
+    }
+    return qb.getMany();
   }
 
   // Finds a single post

@@ -15,7 +15,7 @@ import { UserResolver } from "./resolvers/user";
 
 const main = async () => {
   // TypeORM Datasource Initialise connection to the DB
-  dataSource.initialize();
+  await dataSource.initialize();
 
   // Create MikroORM
   // const orm = await MikroORM.init(microConfig);
