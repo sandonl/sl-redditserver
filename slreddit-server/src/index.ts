@@ -13,14 +13,16 @@ import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
 
+// rerun
 const main = async () => {
   // TypeORM Datasource Initialise connection to the DB
   await dataSource.initialize();
 
-  // Create MikroORM
-  // const orm = await MikroORM.init(microConfig);
-  // await orm.em.nativeDelete(User, {});
-  // await orm.getMigrator().up();
+  // Use to run any new migrations:
+  // await dataSource.runMigrations();
+
+  // Use to delete all posts:
+  // await Post.delete({});
 
   // Initiate an App
   const app = express();

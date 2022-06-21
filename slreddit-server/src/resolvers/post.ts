@@ -4,11 +4,13 @@ import {
   Arg,
   Ctx,
   Field,
+  FieldResolver,
   InputType,
   Int,
   Mutation,
   Query,
   Resolver,
+  Root,
   UseMiddleware,
 } from "type-graphql";
 import { Post } from "../entities/Post";
@@ -22,8 +24,13 @@ class PostInput {
   text: string;
 }
 
-@Resolver()
+@Resolver(Post)
 export class PostResolver {
+  // Text snippet to slice isntead of FE loading all.
+  @FieldResolver(() => String)
+  textSnippet(@Root() root: Post) {
+    return root.text.slice(0, 200);
+  }
   // Finds all posts
   // Sets GraphQL Type
   @Query(() => [Post])

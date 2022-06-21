@@ -28,7 +28,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
       </>
     );
 
-    // User is logged in
+    // Case where User is logged in
   } else {
     body = (
       <Flex>
