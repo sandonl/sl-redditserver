@@ -19,7 +19,7 @@ const main = async () => {
   await dataSource.initialize();
 
   // Use to run any new migrations:
-  // await dataSource.runMigrations();
+  await dataSource.runMigrations();
 
   // Use to delete all posts:
   // await Post.delete({});
