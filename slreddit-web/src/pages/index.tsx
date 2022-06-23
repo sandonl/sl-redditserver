@@ -16,14 +16,15 @@ import { useState } from "react";
 
 const Index = () => {
   const [variables, setVariables] = useState({
-    limit: 10,
+    limit: 33,
     cursor: null as null | string,
-  });
-  const [{ data, fetching }] = usePostsQuery({
-    variables,
   });
 
   console.log(variables);
+
+  const [{ data, fetching, ...other }] = usePostsQuery({
+    variables,
+  });
 
   if (!fetching && !data) {
     return <div> Your query failed </div>;

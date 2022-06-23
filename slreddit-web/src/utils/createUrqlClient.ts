@@ -58,7 +58,6 @@ export const cursorPagination = (): Resolver => {
       if (!_hasMore) {
         hasMore = _hasMore as boolean;
       }
-      console.log("data: ", hasMore, data);
       results.push(...data);
     });
 
