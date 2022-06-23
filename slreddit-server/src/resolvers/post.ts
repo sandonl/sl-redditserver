@@ -16,6 +16,7 @@ import {
 } from "type-graphql";
 import { Post } from "../entities/Post";
 import dataSource from "../db_config";
+import { Upvote } from "../entities/Upvote";
 
 @InputType()
 class PostInput {
@@ -39,6 +40,32 @@ export class PostResolver {
   @FieldResolver(() => String)
   textSnippet(@Root() root: Post) {
     return root.text.slice(0, 200);
+  }
+
+  @Mutation(() => Boolean)
+  @UseMiddleware(isAuth)
+  async vote(
+    @Arg("postId", () => Int) postId: number,
+    @Arg("value", () => Int) value: number,
+    @Ctx() { req }: MyContext
+  ) {
+    const isUpvote = value !== -1;
+    const realValue = isUpvote ? 1 : -1;
+    const { userId } = req.session;
+    Upvote.insert({
+      userId,
+      postId,
+      value: realValue,
+    });
+    await dataSource.query(
+      `
+      update post 
+      set points = p.points + $1
+      where p.id = $2
+      `,
+      [realValue, postId]
+    );
+    return true;
   }
 
   // Finds all posts
