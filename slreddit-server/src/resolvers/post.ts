@@ -16,7 +16,7 @@ import {
 } from "type-graphql";
 import { Post } from "../entities/Post";
 import dataSource from "../db_config";
-import { Upvote } from "../entities/Upvote";
+// import { Upvote } from "../entities/Upvote";
 
 @InputType()
 class PostInput {
@@ -52,18 +52,24 @@ export class PostResolver {
     const isUpvote = value !== -1;
     const realValue = isUpvote ? 1 : -1;
     const { userId } = req.session;
-    Upvote.insert({
-      userId,
-      postId,
-      value: realValue,
-    });
+    // Upvote.insert({
+    //   userId,
+    //   postId,
+    //   value: realValue,
+    // });
     await dataSource.query(
       `
+      START TRANSACTION;
+
+      insert into upvote ("userId", "postId", value)
+      values(${userId}, ${postId}, ${realValue});
+
       update post 
-      set points = p.points + $1
-      where p.id = $2
-      `,
-      [realValue, postId]
+      set points = points + ${realValue}
+      where id = ${postId};
+
+      COMMIT;
+      `
     );
     return true;
   }
@@ -117,7 +123,6 @@ export class PostResolver {
     //   });
     // }
     // const posts = await qb.getMany();
-    console.log("posts: ", posts);
 
     return {
       posts: posts.slice(0, realLimit),
