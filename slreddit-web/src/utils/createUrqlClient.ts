@@ -13,8 +13,10 @@ import {
   MeDocument,
   MeQuery,
   RegisterMutation,
+  VoteMutationVariables,
 } from "../generated/graphql";
 import { betterUpdateQuery } from "./betterUpdateQuery";
+import { gql } from "@urql/core";
 
 // From https://github.com/FormidableLabs/urql/issues/225
 export const errorExchange: Exchange =
@@ -87,6 +89,32 @@ export const createUrqlClient = (ssrExchange: any) => ({
       },
       updates: {
         Mutation: {
+          vote: (_result, args, cache, info) => {
+            const { postId, value } = args as VoteMutationVariables;
+            const data = cache.readFragment(
+              gql`
+                fragment _ on Post {
+                  id
+                  points
+                }
+              `,
+              { id: postId }
+            );
+            console.log("data: ", data);
+            if (data) {
+              const newPoints = (data.points as number) + value;
+              // up to here: 9:36.33
+              cache.writeFragment(
+                gql`
+                  fragment __ on Post {
+                    points
+                  }
+                `,
+                { id: postId, points: newPoints } as any
+              );
+            }
+          },
+
           createPost: (_result, args, cache, info) => {
             const allFields = cache.inspectFields("Query");
             const fieldInfos = allFields.filter(
