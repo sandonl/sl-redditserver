@@ -16,6 +16,7 @@ import {
 } from "type-graphql";
 import { Post } from "../entities/Post";
 import dataSource from "../db_config";
+import { Upvote } from "../entities/Upvote";
 // import { Upvote } from "../entities/Upvote";
 
 @InputType()
@@ -52,25 +53,52 @@ export class PostResolver {
     const isUpvote = value !== -1;
     const realValue = isUpvote ? 1 : -1;
     const { userId } = req.session;
-    // Upvote.insert({
-    //   userId,
-    //   postId,
-    //   value: realValue,
-    // });
-    await dataSource.query(
-      `
-      START TRANSACTION;
+    const upvote = await Upvote.findOne({ where: { postId, userId } });
 
-      insert into upvote ("userId", "postId", value)
-      values(${userId}, ${postId}, ${realValue});
+    // If the user has voted on the post before.
+    // and they are changing their vote
+    if (upvote && upvote.value !== realValue) {
+      await dataSource.transaction(async (tm) => {
+        await tm.query(
+          `
+          update upvote 
+          set value = $1
+          where "postId" = $2 and "userId" = $3
+          `,
+          [realValue, postId, userId]
+        );
 
-      update post 
-      set points = points + ${realValue}
-      where id = ${postId};
+        await tm.query(
+          `
+          update post
+          set points = points + $1
+          where id = $2
+          `,
+          [2 * realValue, postId] // 2 times, e.g. change upvote to downvote
+        );
+      });
+    } else if (!upvote) {
+      // The user has never voted on this post before
+      await dataSource.transaction(async (tm) => {
+        await tm.query(
+          `
+        insert into upvote ("userId", "postId", value)
+        values ($1, $2, $3)
+        `,
+          [userId, postId, realValue]
+        );
 
-      COMMIT;
-      `
-    );
+        await tm.query(
+          `
+        update post
+        set points = points + $1
+        where id = $2
+        `,
+          [realValue, postId]
+        );
+      });
+    }
+
     return true;
   }
 
