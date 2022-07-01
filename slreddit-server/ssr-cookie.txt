@@ -1,0 +1,6 @@
+ssr 
+  browser -> next.js -> graphql api  (Server side) 
+  we need to tell our next js server to send our cookie to the graphql api 
+client side
+  browser -> graphql api (Client side) 
+
