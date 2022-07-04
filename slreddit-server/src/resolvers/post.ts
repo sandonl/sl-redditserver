@@ -144,7 +144,7 @@ export class PostResolver {
       }
       from post p 
       inner join public.user u on u.id = p."creatorId" 
-      ${cursor ? `where p."createdAt" < ${cursorIndex} ` : ""}
+      ${cursor ? `where p."createdAt" < $${cursorIndex} ` : ""}
       order by p."createdAt" DESC
       limit $1
     `,
@@ -173,8 +173,8 @@ export class PostResolver {
   // Finds a single post
   @Query(() => Post, { nullable: true })
   // Changes the name in the schema
-  post(@Arg("id") id: number): Promise<Post | null> {
-    return Post.findOne({ where: { id } });
+  post(@Arg("id", () => Int) id: number): Promise<Post | null> {
+    return Post.findOne({ where: { id }, relations: ["creator"] });
   }
 
   // Creates a post
