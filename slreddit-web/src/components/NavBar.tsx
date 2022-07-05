@@ -33,7 +33,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
     body = (
       <Flex align="center">
         <NextLink href="create-post">
-          <Button as={Link} mr={4}>
+          <Button as={Link} mr={4} style={{ textDecoration: "none" }}>
             create post
           </Button>
         </NextLink>
