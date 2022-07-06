@@ -1,4 +1,3 @@
-import { isAuth } from "../middleware/isAuth";
 import MyContext from "src/types";
 import {
   Arg,
@@ -14,11 +13,11 @@ import {
   Root,
   UseMiddleware,
 } from "type-graphql";
-import { Post } from "../entities/Post";
 import dataSource from "../db_config";
+import { Post } from "../entities/Post";
 import { Upvote } from "../entities/Upvote";
 import { User } from "../entities/User";
-// import { Upvote } from "../entities/Upvote";
+import { isAuth } from "../middleware/isAuth";
 
 @InputType()
 class PostInput {
@@ -49,6 +48,23 @@ export class PostResolver {
     // N+1 Problem, resolve with dataloader
     // return User.findOneBy({ id: post.creatorId });
     return userLoader.load(post.creatorId);
+  }
+
+  @FieldResolver(() => Int, { nullable: true })
+  async voteStatus(
+    @Root() post: Post,
+    @Ctx() { upvoteLoader, req }: MyContext
+  ) {
+    if (!req.session.userId) {
+      return null;
+    }
+
+    const upvote = await upvoteLoader.load({
+      postId: post.id,
+      userId: req.session.userId,
+    });
+
+    return upvote ? upvote.value : null;
   }
 
   @Mutation(() => Boolean)
@@ -115,36 +131,24 @@ export class PostResolver {
   @Query(() => PaginatedPosts)
   async posts(
     @Arg("limit", () => Int) limit: number,
-    @Arg("cursor", () => String, { nullable: true }) cursor: string | null,
-    @Ctx() { req }: MyContext
+    @Arg("cursor", () => String, { nullable: true }) cursor: string | null
   ): Promise<PaginatedPosts> {
     const realLimit = Math.min(50, limit);
     const realLimitPlusOne = realLimit + 1;
 
     const replacements: any[] = [realLimitPlusOne];
 
-    if (req.session.userId) {
-      replacements.push(req.session.userId);
-    }
-
-    let cursorIndex = 3;
     if (cursor) {
       replacements.push(new Date(parseInt(cursor)));
-      cursorIndex = replacements.length;
     }
 
     // Raw SQL vs queryBuilder
     // We can fetch a json object with PostgresSQL using json_build_object()
     const posts = await dataSource.query(
       `
-      select p.*,
-      ${
-        req.session.userId
-          ? '(select value from upvote where "userId" = $2 and "postId" = p.id) "voteStatus"'
-          : 'null as "voteStatus"'
-      }
+      select p.*
       from post p 
-      ${cursor ? `where p."createdAt" < $${cursorIndex} ` : ""}
+      ${cursor ? `where p."createdAt" < $2` : ""}
       order by p."createdAt" DESC
       limit $1
     `,
