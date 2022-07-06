@@ -17,6 +17,7 @@ import {
 import { Post } from "../entities/Post";
 import dataSource from "../db_config";
 import { Upvote } from "../entities/Upvote";
+import { User } from "../entities/User";
 // import { Upvote } from "../entities/Upvote";
 
 @InputType()
@@ -41,6 +42,13 @@ export class PostResolver {
   @FieldResolver(() => String)
   textSnippet(@Root() root: Post) {
     return root.text.slice(0, 200);
+  }
+
+  @FieldResolver(() => User)
+  creator(@Root() post: Post, @Ctx() { userLoader }: MyContext) {
+    // N+1 Problem, resolve with dataloader
+    // return User.findOneBy({ id: post.creatorId });
+    return userLoader.load(post.creatorId);
   }
 
   @Mutation(() => Boolean)
@@ -130,20 +138,12 @@ export class PostResolver {
     const posts = await dataSource.query(
       `
       select p.*,
-      json_build_object(
-        'id', u.id,
-        'username', u.username,
-        'email', u.email,
-        'createdAt', u."createdAt",
-        'updatedAt', u."updatedAt"
-        ) creator,
       ${
         req.session.userId
           ? '(select value from upvote where "userId" = $2 and "postId" = p.id) "voteStatus"'
           : 'null as "voteStatus"'
       }
       from post p 
-      inner join public.user u on u.id = p."creatorId" 
       ${cursor ? `where p."createdAt" < $${cursorIndex} ` : ""}
       order by p."createdAt" DESC
       limit $1
@@ -174,7 +174,7 @@ export class PostResolver {
   @Query(() => Post, { nullable: true })
   // Changes the name in the schema
   post(@Arg("id", () => Int) id: number): Promise<Post | null> {
-    return Post.findOne({ where: { id }, relations: ["creator"] });
+    return Post.findOneBy({ id: id });
   }
 
   // Creates a post
