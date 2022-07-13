@@ -6,9 +6,7 @@ import { Upvote } from "./entities/Upvote";
 
 const dataSource = new DataSource({
   type: "postgres",
-  database: "slreddit",
-  username: "postgres",
-  password: "postgres",
+  url: process.env.DATABASE_URL,
   logging: true,
   synchronize: true,
   migrations: [path.join(__dirname, "./migrations/*")],

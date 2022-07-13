@@ -1,3 +1,4 @@
+require("dotenv-safe").config();
 import { ApolloServer } from "apollo-server-express";
 import connectRedis from "connect-redis";
 import cors from "cors";
@@ -6,9 +7,8 @@ import session from "express-session";
 import Redis from "ioredis";
 import "reflect-metadata";
 import { buildSchema } from "type-graphql";
-import { COOKIE_NAME } from "./constants";
+import { COOKIE_NAME, __prod__ } from "./constants";
 import dataSource from "./db_config";
-// import { Post } from "./entities/Post";
 import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
@@ -31,10 +31,10 @@ const main = async () => {
 
   // Create Redis Store and Client
   const RedisStore = connectRedis(session);
-  const redis = new Redis();
+  const redis = new Redis(process.env.REDIS_URL);
   // const redisClient = createClient({ legacyMode: true });
   // redis.connect().catch(console.error);
-
+  // app.set("proxy", 1);
   // Applies middleware to all routes
   app.use(
     cors({
@@ -51,9 +51,10 @@ const main = async () => {
         httpOnly: true,
         sameSite: "lax", // csrf
         secure: false, // _prod__ cookie only works in https
+        // domain: __prod__ ? ".slreddit.com" : undefined,
       },
       saveUninitialized: false,
-      secret: "keyboard cat heahfa",
+      secret: process.env.SESSION!,
       resave: false,
     })
   );
@@ -77,7 +78,7 @@ const main = async () => {
     cors: false,
   });
 
-  app.listen(4000, () => {
+  app.listen(parseInt(process.env.PORT_NO!), () => {
     console.log("server started on localhost:4000");
   });
 };
