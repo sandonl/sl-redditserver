@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "gen-env-types": "^1.3.4"
+  }
+}

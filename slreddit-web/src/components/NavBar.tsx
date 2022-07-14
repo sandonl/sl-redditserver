@@ -3,7 +3,7 @@ import React from "react";
 import NextLink from "next/link";
 import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 import { isServer } from "../utils/isServer";
-import { Router, useRouter } from "next/router";
+import { useRouter } from "next/router";
 
 interface NavBarProps {}
 
@@ -42,6 +42,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
         <Box mr={4}>{data.me.username}</Box>
         <Button
           variant="link"
+          colorScheme={"black"}
           onClick={async () => {
             await logout();
             router.reload();

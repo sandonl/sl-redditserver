@@ -34,7 +34,10 @@ const main = async () => {
   const redis = new Redis(process.env.REDIS_URL);
   // const redisClient = createClient({ legacyMode: true });
   // redis.connect().catch(console.error);
-  // app.set("proxy", 1);
+
+  //  Cookie issues:
+  app.set("trust proxy", 1);
+
   // Applies middleware to all routes
   app.use(
     cors({
@@ -50,8 +53,8 @@ const main = async () => {
         maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // ms, seconds, minutes, hours, days, years 10 years
         httpOnly: true,
         sameSite: "lax", // csrf
-        secure: false, // _prod__ cookie only works in https
-        // domain: __prod__ ? ".slreddit.com" : undefined,
+        secure: __prod__, // _prod__ cookie only works in https
+        domain: __prod__ ? ".sandonl.com" : undefined,
       },
       saveUninitialized: false,
       secret: process.env.SESSION!,
