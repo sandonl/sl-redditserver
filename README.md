@@ -24,7 +24,7 @@ Back-End hosted on: Digital Ocean
 
 ## Visit:
 
-Live: [SLReddit](sandonl.com)
+Live: [SLReddit](https://sandonl.com/)
 
 ![Homepage](/slreddit-web/public/homepage.png)
 
