@@ -28,12 +28,12 @@ const CreatePost: React.FC<{}> = ({}) => {
       >
         {({ isSubmitting }) => (
           <Form>
-            <InputField name="title" placeholder="title" label="title" />
+            <InputField name="Title" placeholder="Title" label="Title" />
             <Box mt={4}>
               <InputField
                 textarea
                 name="text"
-                placeholder="text..."
+                placeholder="Text..."
                 label="Body"
               />
             </Box>

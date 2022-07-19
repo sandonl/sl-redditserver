@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Heading, Link } from "@chakra-ui/react";
+import { Box, Button, Flex, Heading, Link, Text } from "@chakra-ui/react";
 import React from "react";
 import NextLink from "next/link";
 import { useLogoutMutation, useMeQuery } from "../generated/graphql";
@@ -22,10 +22,15 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
     body = (
       <>
         <NextLink href="/login">
-          <Link mr={2}>Login</Link>
+          {/* <Link mr={2}>Login</Link> */}
+          <Button mr={4} colorScheme="whiteAlpha">
+            Login
+          </Button>
         </NextLink>
         <NextLink href="/register">
-          <Link mr={2}>Register</Link>
+          <Button mr={2} colorScheme="blackAlpha">
+            Register
+          </Button>
         </NextLink>
       </>
     );
@@ -35,14 +40,24 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
     body = (
       <Flex align="center">
         <NextLink href="create-post">
-          <Button as={Link} mr={4} style={{ textDecoration: "none" }}>
-            create post
+          <Button
+            as={Link}
+            mr={4}
+            style={{ textDecoration: "none" }}
+            colorScheme="whiteAlpha"
+          >
+            Create Post
           </Button>
         </NextLink>
-        <Box mr={4}>{data.me.username}</Box>
+        <Box mx={2}>
+          <Text fontWeight={"bold"}>{data.me.username}</Text>
+        </Box>
         <Button
-          variant="link"
-          colorScheme={"black"}
+          variant={"ghost"}
+          color={"white"}
+          mr={8}
+          style={{ textDecoration: "none" }}
+          colorScheme="whiteAlpha"
           onClick={async () => {
             await logout();
             router.reload();
@@ -58,11 +73,15 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
     <Flex position="sticky" top={0} bg="#2B6CB0" p={4} zIndex={1}>
       <Flex align={"center"} maxW={800} flex={1} m="auto">
         <NextLink href="/">
-          <Link>
-            <Heading> SLReddit </Heading>
-          </Link>
+          <Button variant={"ghost"} colorScheme="whiteAlpha">
+            <Heading color={"white"} textDecoration={"none"}>
+              SLReddit
+            </Heading>
+          </Button>
         </NextLink>
-        <Box ml={"auto"}>{body}</Box>
+        <Box ml={"auto"} color={"white"}>
+          {body}
+        </Box>
       </Flex>
     </Flex>
   );
