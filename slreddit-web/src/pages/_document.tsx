@@ -6,7 +6,6 @@ export default class Document extends NextDocument {
     return (
       <Html>
         <Head>
-          <title> SLReddit - Sandon's Reddit </title>
           <link
             rel="apple-touch-icon"
             sizes="180x180"
@@ -26,6 +25,7 @@ export default class Document extends NextDocument {
           />
           <link rel="manifest" href="/site.webmanifest" />
         </Head>
+        <title> SLReddit - Sandon's Reddit </title>
         <body>
           {/* Make Color mode to persists when you refresh the page. */}
           <ColorModeScript />
