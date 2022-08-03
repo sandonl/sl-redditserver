@@ -28,7 +28,7 @@ const CreatePost: React.FC<{}> = ({}) => {
       >
         {({ isSubmitting }) => (
           <Form>
-            <InputField name="Title" placeholder="Title" label="Title" />
+            <InputField name="title" placeholder="Title" label="Title" />
             <Box mt={4}>
               <InputField
                 textarea
