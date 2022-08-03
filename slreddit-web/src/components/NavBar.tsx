@@ -28,7 +28,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
           </Button>
         </NextLink>
         <NextLink href="/register">
-          <Button mr={2} colorScheme="blackAlpha">
+          <Button mr={2} colorScheme="whiteAlpha">
             Register
           </Button>
         </NextLink>
